@@ -1,0 +1,18 @@
+[project]
+name = "mlflow-tracking-with-minio"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = [
+    "marimo>=0.14.16",
+    "minio>=7.2.16",
+    "mlflow>=3.2.0",
+    "torchvision>=0.23.0",
+]
+
+[dependency-groups]
+dev = [
+    "pytest>=8.4.1",
+    "ruff>=0.12.8",
+]
