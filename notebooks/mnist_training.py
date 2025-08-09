@@ -32,6 +32,18 @@ def _():
 
 
 @app.cell
+def _(mo):
+    mo.md(
+        r"""
+    ## Ingesting data
+
+    In this we will prepare the data loaders, which will create train and test datasets
+    """
+    )
+    return
+
+
+@app.cell
 def _(Any, DataLoader, Tuple, datasets, time, transforms):
     def load_images(batch_size: int) -> Tuple[Any]:
         # Start of load time.
@@ -49,6 +61,18 @@ def _(Any, DataLoader, Tuple, datasets, time, transforms):
         test_loader = DataLoader(test_dataset, batch_size=batch_size, shuffle=True)
         return train_loader, test_loader, len(train_dataset), len(test_dataset), (time()-start_time)
     return (load_images,)
+
+
+@app.cell
+def _(mo):
+    mo.md(
+        r"""
+    ## Model design
+
+    In this phase we will design our classifier, and simple neural network with two hidden layers and softmax output
+    """
+    )
+    return
 
 
 @app.cell
@@ -72,6 +96,18 @@ def _(List, nn):
             out = self.output_activation(out)
             return out
     return (MNISTModel,)
+
+
+@app.cell
+def _(mo):
+    mo.md(
+        r"""
+    ## Training step
+
+    We create the function which will contain our training loop
+    """
+    )
+    return
 
 
 @app.cell
@@ -112,6 +148,12 @@ def _(Any, DataLoader, Dict, MNISTModel, mlflow, nn, optim, time):
 
 
 @app.cell
+def _(mo):
+    mo.md(r"""## Evaluation step""")
+    return
+
+
+@app.cell
 def _(Any, DataLoader, Dict, MNISTModel, torch):
     def evaluate_model(model: MNISTModel, loader: DataLoader) -> Dict[str, Any]:
         correct_count, total_count = 0, 0
@@ -143,6 +185,12 @@ def _(Any, DataLoader, Dict, MNISTModel, torch):
 
 
 @app.cell
+def _(mo):
+    mo.md(r"""## Full run""")
+    return
+
+
+@app.cell
 def _(MNISTModel, load_images, mlflow, train_model):
     # Setup parameters
     params = {
@@ -150,7 +198,7 @@ def _(MNISTModel, load_images, mlflow, train_model):
         'epochs': 35,
         'input_size': 784,
         'hidden_sizes': [128, 64],
-        'lr': 0.035,
+        'lr': 0.025,
         'momentum': 0.5,
         'output_size': 10
         }
@@ -158,8 +206,8 @@ def _(MNISTModel, load_images, mlflow, train_model):
     # Setup mlflow to point to our server.
     run_name = f'Learning rate={params["lr"]}'
     mlflow.set_tracking_uri('http://localhost:5010/')
-    mlflow.set_experiment('MNIST 3-layer network')
-    mlflow.start_run(run_name=run_name)
+    active_experiment = mlflow.set_experiment('MNIST 3-layer network')
+    active_run = mlflow.start_run(run_name=run_name)
 
     # Log parameters
     mlflow.log_params(params)
@@ -174,11 +222,6 @@ def _(MNISTModel, load_images, mlflow, train_model):
     model = MNISTModel(params['input_size'], params['hidden_sizes'], params['output_size'])
     training_metrics = train_model(model, train_loader, params)
     mlflow.log_metrics(training_metrics)
-
-
-
-
-
     return model, test_loader
 
 
@@ -199,7 +242,7 @@ def _(mlflow, model, torch):
     import numpy as np
 
     # Create sample input and predictions
-    sample_input = sample_input = np.random.uniform(size=[1, 784]).astype(np.float32)
+    sample_input = np.random.uniform(size=[1, 784]).astype(np.float32)
 
     # Get model output - convert tensor to numpy
     with torch.no_grad():
@@ -209,8 +252,15 @@ def _(mlflow, model, torch):
     # Infer signature automatically
     signature = infer_signature(sample_input, sample_output)
 
+    model_name="multi-layer-perceptron"
+    registered_model_name="mnist_classifier"
     # Log model with signature
-    model_info = mlflow.pytorch.log_model(model, name="mnistmodel", signature=signature)
+    model_info = mlflow.pytorch.log_model(
+        model, 
+        artifact_path=model_name, 
+        signature=signature,
+        registered_model_name=registered_model_name
+    )
     return
 
 
@@ -222,7 +272,52 @@ def _(mlflow):
 
 
 @app.cell
+def _(mo):
+    mo.md(
+        r"""
+    ### Registering model Through API
+
+    Run the code below in case you did not register a model during the logging step
+    """
+    )
+    return
+
+
+@app.cell
 def _():
+    # from mlflow import MlflowClient
+    # from mlflow.store.artifact.runs_artifact_repo import RunsArtifactRepository
+    # 
+    # client = MlflowClient()
+    # 
+    # # registered_model_name = "mnist_classifier"
+    # # Register top-level collection entity if it has not been previously registered.
+    # filter_string = f"name='{registered_model_name}'"
+    # results = client.search_registered_models(filter_string=filter_string)
+    # if len(results) == 0:
+    #   model_tags = {'framework': 'Pytorch'}
+    #   model_description = 'Various versions of the MNIST model with different hidden layers.'
+    #   client.create_registered_model(registered_model_name, model_tags, model_description)
+    # 
+    # # Register the new version
+    # run_id = active_run.info.run_id
+    # run_uri = f'runs:/{run_id}/{model_name}'
+    # model_source = RunsArtifactRepository.get_underlying_uri(run_uri, tracking_uri="http://localhost:5010/")
+    # version_tags = {'layers': len(params['hidden_sizes'])}
+    # version_description = f'Hidden sizes: {params["hidden_sizes"]}'
+    # model_version = client.create_model_version(registered_model_name, model_source, run_id,tags=version_tags,description=version_description)
+    return
+
+
+@app.cell
+def _():
+    import marimo as mo
+    return (mo,)
+
+
+@app.cell
+def _(model_source):
+    model_source
     return
 
 

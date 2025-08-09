@@ -223,10 +223,11 @@ Current best results on MNIST:
 
 ## References
 
+- [MLflow Tracking and MinIO Blog Post](https://blog.min.io/mlflow-tracking-and-minio/)
+- [MLflow model registry and MinIO blog post](https://blog.min.io/mlflow-model-registry-and-minio/)
+- [Original Code Examples](https://github.com/minio/blog-assets/tree/main/mlflow_tracking)
 - [MLflow Documentation](https://mlflow.org/docs/latest/index.html)
 - [MinIO Documentation](https://docs.min.io/)
-- [MLflow Tracking and MinIO Blog Post](https://blog.min.io/mlflow-tracking-and-minio/)
-- [Original Code Examples](https://github.com/minio/blog-assets/tree/main/mlflow_tracking)
 
 ## License
 
