@@ -125,18 +125,6 @@ The project includes experiments on the MNIST handwritten digit dataset:
 - **Model**: 3-layer neural network with ReLU activation
 - **Goal**: Achieve >98% accuracy through hyperparameter optimization
 
-**Key Parameters Tracked:**
-
-- Learning rate (0.001, 0.01, 0.1)
-- Hidden layer sizes (128, 64)
-- Number of epochs (35)
-- Batch size (64)
-
-**Metrics Monitored:**
-
-- Training loss per epoch
-- Test accuracy
-- Training time (TODO)
 
 ### Results Visualization
 
@@ -154,20 +142,14 @@ All artifacts are automatically stored in MinIO:
 - **Datasets**: Raw and preprocessed data files
 - **Visualizations**: Training curves and model diagrams
 
-**MinIO Console**: [http://localhost:9000](http://localhost:9000)
-- Username: `minioadmin`
-- Password: `minioadmin`
+**MinIO Console**: [http://localhost:9001](http://localhost:9001)
+Credentials are found in `config.env`
 
 ## Configuration
 
 ### Environment Variables
-Create a `.env` file:
-```bash
-MLFLOW_TRACKING_URI=http://localhost:5000
-MLFLOW_S3_ENDPOINT_URL=http://localhost:9000
-AWS_ACCESS_KEY_ID=minioadmin
-AWS_SECRET_ACCESS_KEY=minioadmin
-```
+
+See `config.env`
 
 ### MLflow Configuration
 ```python
@@ -178,9 +160,10 @@ mlflow.set_tracking_uri(os.getenv("MLFLOW_TRACKING_URI"))
 mlflow.set_experiment("mnist-classification")
 ```
 
-## Advanced Usage
+## Usage
 
-### Custom Experiments
+### Tracking experiments
+
 ```python
 import mlflow
 from src.training.trainer import Trainer
@@ -206,19 +189,24 @@ with mlflow.start_run(run_name="custom-experiment"):
 ```
 
 ### Comparing Experiments
+
 Use the MLflow UI to:
 1. Select multiple runs
 2. Create comparison charts
 3. Analyze parameter impact on performance
 4. Export results for reporting
 
-## Performance Results
+### Deployment
 
-Current best results on MNIST:
-- **Accuracy**: 98.2%
-- **Training Time**: ~5 minutes (50 epochs)
-- **Model Size**: 0.5 MB
-- **Optimal Learning Rate**: 0.01
+For serving, we can do the following to have a local running inference service (see [MLFlow Deployment](https://mlflow.org/docs/latest/ml/deployment/) for more)
+
+```bash
+# We set the tracking uri to the remote mlflow server
+export MLFLOW_TRACKING_URI=http://localhost:5010/
+
+# We run the following command to have a local inference service
+mlflow models serve -m models:/mnist_classifier/6 --port 5015 --no-conda
+```
 
 
 ## References
@@ -239,5 +227,3 @@ Current best results on MNIST:
 
 - Explore MLflow Model Registry for model deployment
 - Implement automated hyperparameter tuning
-- Add CI/CD pipelines for ML experiments
-- Scale experiments to distributed training
